@@ -21,7 +21,7 @@ function Chart({ title, data, keys, colors }: {
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey="t" stroke="#888" fontSize={11} label={{ value: 'seconds', position: 'insideBottom', offset: -3, fill: '#888', fontSize: 11 }} />
+          <XAxis dataKey="t" stroke="#888" fontSize={11} label={{ value: 'time', position: 'insideBottom', offset: -3, fill: '#888', fontSize: 11 }} />
           <YAxis stroke="#888" fontSize={11} />
           <Tooltip contentStyle={{ background: '#111', border: '1px solid #333' }} />
           <Legend wrapperStyle={{ fontSize: 12 }} />

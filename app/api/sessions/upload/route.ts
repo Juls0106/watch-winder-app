@@ -3,7 +3,7 @@ import Papa from 'papaparse'
 import { supabaseAdmin } from '@/lib/supabase'
 import { applyMadgwickFusion } from '@/lib/sensorFusion'
 
-type Row = { elapsed_ms: number; x: number; y: number; z: number }
+type Row = { elapsed_ms: number; x: number; y: number; z: number; epoch: string }
 
 function parseCsv(text: string): Row[] {
   const { data } = Papa.parse<Record<string, string>>(text, {
@@ -11,11 +11,12 @@ function parseCsv(text: string): Row[] {
     skipEmptyLines: true,
   })
   return data.map((r) => ({
-    elapsed_ms: parseFloat(r.elapsed_ms),
-    x: parseFloat(r.x),
-    y: parseFloat(r.y),
-    z: parseFloat(r.z),
-  }))
+  elapsed_ms: parseFloat(r.elapsed_ms),
+  x: parseFloat(r.x),
+  y: parseFloat(r.y),
+  z: parseFloat(r.z),
+  epoch: r.epoch,
+}))
 }
 
 // Nearest-neighbor join within tolerance. Confirmed against real test data:
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
       .insert({
         activity_label: activityLabel,
         wrist: wrist || null,
-        recorded_at: new Date().toISOString(),
+        recorded_at: new Date(parseInt(accelRows[0].epoch) * 1000).toISOString(),
         duration_s: durationS,
         sample_rate_hz: sampleRateHz,
         notes: notes || null,
