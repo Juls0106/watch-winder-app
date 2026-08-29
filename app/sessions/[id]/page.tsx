@@ -36,7 +36,7 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
 
     const offsetMs = s.elapsed_ms - startMs
     const clockTime = new Date(recordedAtMs + offsetMs)
-    const t = clockTime.toLocaleTimeString('en-GB') // HH:MM:SS
+    const t = clockTime.toLocaleTimeString('en-GB', { timeZone: 'Europe/Bucharest' })
 
     return {
       t,
