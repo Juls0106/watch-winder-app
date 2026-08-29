@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Papa from 'papaparse'
 import { supabaseAdmin } from '@/lib/supabase'
+import { applyMadgwickFusion } from '@/lib/sensorFusion'
 
 type Row = { elapsed_ms: number; x: number; y: number; z: number }
 
@@ -75,6 +76,7 @@ export async function POST(req: NextRequest) {
     const lastMs = joined[joined.length - 1].elapsed_ms
     const durationS = (lastMs - firstMs) / 1000
     const sampleRateHz = joined.length / durationS
+    const fused = applyMadgwickFusion(joined, sampleRateHz)
 
     const { data: session, error: sessionError } = await supabaseAdmin
       .from('sessions')
@@ -116,8 +118,8 @@ export async function POST(req: NextRequest) {
       .eq('id', sessionId)
 
     const CHUNK_SIZE = 1000
-    for (let i = 0; i < joined.length; i += CHUNK_SIZE) {
-      const chunk = joined.slice(i, i + CHUNK_SIZE).map((r) => ({ ...r, session_id: sessionId }))
+    for (let i = 0; i < fused.length; i += CHUNK_SIZE) {
+      const chunk = fused.slice(i, i + CHUNK_SIZE).map((r) => ({ ...r, session_id: sessionId }))
       const { error: insertError } = await supabaseAdmin.from('samples').insert(chunk)
       if (insertError) {
         return NextResponse.json({ error: `Sample insert failed at row ${i}: ${insertError.message}` }, { status: 500 })
