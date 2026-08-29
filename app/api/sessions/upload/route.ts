@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
       .insert({
         activity_label: activityLabel,
         wrist: wrist || null,
-        recorded_at: new Date(parseInt(accelRows[0].epoch) * 1000).toISOString(),
+        recorded_at: new Date(accelRows[0].epoch).toISOString(),
         duration_s: durationS,
         sample_rate_hz: sampleRateHz,
         notes: notes || null,
