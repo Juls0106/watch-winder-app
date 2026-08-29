@@ -27,13 +27,19 @@ export default async function SessionDetailPage({ params }: { params: Promise<{ 
   }
 
   const startMs = samples[0]?.elapsed_ms ?? 0
+  const recordedAtMs = session.recorded_at ? new Date(session.recorded_at).getTime() : Date.now()
+
   const chartData = samples.map((s) => {
     const euler = (s.quat_w !== null && s.quat_x !== null && s.quat_y !== null && s.quat_z !== null)
       ? quaternionToEuler(s.quat_w, s.quat_x, s.quat_y, s.quat_z)
       : { roll: 0, pitch: 0, yaw: 0 }
 
+    const offsetMs = s.elapsed_ms - startMs
+    const clockTime = new Date(recordedAtMs + offsetMs)
+    const t = clockTime.toLocaleTimeString('en-GB') // HH:MM:SS
+
     return {
-      t: ((s.elapsed_ms - startMs) / 1000).toFixed(2),
+      t,
       accel_x: s.accel_x, accel_y: s.accel_y, accel_z: s.accel_z,
       gyro_x: s.gyro_x, gyro_y: s.gyro_y, gyro_z: s.gyro_z,
       roll: euler.roll, pitch: euler.pitch, yaw: euler.yaw,
