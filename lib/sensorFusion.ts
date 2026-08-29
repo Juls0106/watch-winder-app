@@ -39,3 +39,24 @@ export function applyMadgwickFusion(samples: JoinedSample[], sampleRateHz: numbe
     return { ...s, quat_w: q.w, quat_x: q.x, quat_y: q.y, quat_z: q.z }
   })
 }
+
+// Converts a quaternion to Euler angles (degrees), for human-readable charting only.
+// Storage stays quaternion-based; this is a display-time conversion.
+export function quaternionToEuler(w: number, x: number, y: number, z: number) {
+  // roll (x-axis rotation)
+  const sinrCosp = 2 * (w * x + y * z)
+  const cosrCosp = 1 - 2 * (x * x + y * y)
+  const roll = Math.atan2(sinrCosp, cosrCosp)
+
+  // pitch (y-axis rotation)
+  const sinp = 2 * (w * y - z * x)
+  const pitch = Math.abs(sinp) >= 1 ? Math.sign(sinp) * (Math.PI / 2) : Math.asin(sinp)
+
+  // yaw (z-axis rotation)
+  const sinyCosp = 2 * (w * z + x * y)
+  const cosyCosp = 1 - 2 * (y * y + z * z)
+  const yaw = Math.atan2(sinyCosp, cosyCosp)
+
+  const toDeg = (rad: number) => (rad * 180) / Math.PI
+  return { roll: toDeg(roll), pitch: toDeg(pitch), yaw: toDeg(yaw) }
+}
